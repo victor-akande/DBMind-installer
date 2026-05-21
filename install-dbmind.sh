@@ -235,8 +235,18 @@ install_dbmind() {
     download_file "$DBMIND_URL" "$DBMIND_TAR" "DBMind Installer"
     extract_tar "$DBMIND_TAR" "/tmp" "DBMind Installer"
     
+    # Prompt for DBMind installer target directory
+    while true; do
+        read -p "Enter the DBMind installation directory (default: $HOME/openGauss-DBMind): " DBMIND_INSTALL_DIR
+        DBMIND_INSTALL_DIR=${DBMIND_INSTALL_DIR:-$HOME/openGauss-DBMind}
+        if [ -n "$DBMIND_INSTALL_DIR" ]; then
+            break
+        fi
+        log_error "Installation directory cannot be empty. Please try again."
+    done
+    
     log_info "Running DBMind installer..."
-    if ! sh "$DBMIND_INSTALLER" <<< "yes"; then
+    if ! printf '%s\ny\n' "$DBMIND_INSTALL_DIR" | sh "$DBMIND_INSTALLER"; then
         exit_with_error "DBMind installation failed"
     fi
     
